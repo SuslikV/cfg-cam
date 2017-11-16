@@ -58,7 +58,7 @@ HRESULT EnumerateDevices(REFGUID category, IEnumMoniker **ppEnum) {
     // Create the System Device Enumerator.
     ICreateDevEnum *pDevEnum;
     HRESULT hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL,
-        CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDevEnum));
+            CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDevEnum));
 
     if (SUCCEEDED(hr))
     {
@@ -111,8 +111,8 @@ void DisplayDeviceInformation(IEnumMoniker *pEnum) {
 
 void DisplayDeviceSettings() {
     for (uint32_t i = 0; i < settArray.size(); i++) {
-		logM(LOG_DBG, to_string(i) + " ");
-		logMe(LOG_INFO, settArray[i]);
+        logM(LOG_DBG, to_string(i) + " ");
+        logMe(LOG_INFO, settArray[i]);
 	}
 }
 
@@ -136,7 +136,7 @@ void SetDeviceSettings(IEnumMoniker *pEnum) {
             VARIANT var;
             VariantInit(&var);
             uint32_t j = 0;
-			
+		
             // Get device path
             hr = pPropBag->Read(L"DevicePath", &var, 0);
             if (SUCCEEDED(hr)) {
@@ -148,16 +148,16 @@ void SetDeviceSettings(IEnumMoniker *pEnum) {
                     //Device #N
                     //---end of device #N
 
-					// compare DevicePath to saved one
+                    // compare DevicePath to saved one
                     logMe(LOG_DBG, ConvertBSTRToMBS(var.bstrVal));
                     logMe(LOG_DBG, settArray[idxArray[j]]);
                     if (ConvertBSTRToMBS(var.bstrVal) == settArray[idxArray[j]]) {
-						VariantClear(&var);
+                        VariantClear(&var);
                         logMe(LOG_DBG,"Device path match found");
-						// Get friendly name.
-						hr = pPropBag->Read(L"FriendlyName", &var, 0);
-						if (SUCCEEDED(hr)) {
-							// compare device FriendlyName to saved one
+                        // Get friendly name.
+                        hr = pPropBag->Read(L"FriendlyName", &var, 0);
+                        if (SUCCEEDED(hr)) {
+                            // compare device FriendlyName to saved one
                             if ((ignoreFriendlyName) || (ConvertBSTRToMBS(var.bstrVal) == settArray[idxArray[j] +1])) {
                                 VariantClear(&var);
                                 logMe(LOG_DBG,"Device FriendlyName match found");
@@ -165,104 +165,104 @@ void SetDeviceSettings(IEnumMoniker *pEnum) {
 
                                 bool VideoProcAmpCapable = true,
                                      CameraControlCapable = true;
-								
-								// Get the capture filter pointer for the IAMVideoProcAmp interface.
-								hr = pMoniker->BindToObject(0, 0, IID_IAMVideoProcAmp, (void**)&pProcAmp);
-								if (FAILED(hr)) {
-									// The device does not support IAMVideoProcAmp, so skip.
-									VideoProcAmpCapable = false;
-								}
-									// Get the capture filter pointer for the IAMCameraControl interface.
-								hr = pMoniker->BindToObject(0, 0, IID_IAMCameraControl, (void**)&pCamCtrl);
-								if (FAILED(hr)) {
-									// The device does not support IAMCameraControl, so skip.
-									CameraControlCapable = false;
-								}
-								
+
+                                // Get the capture filter pointer for the IAMVideoProcAmp interface.
+                                hr = pMoniker->BindToObject(0, 0, IID_IAMVideoProcAmp, (void**)&pProcAmp);
+                                if (FAILED(hr)) {
+                                    // The device does not support IAMVideoProcAmp, so skip.
+                                    VideoProcAmpCapable = false;
+                                }
+                                // Get the capture filter pointer for the IAMCameraControl interface.
+                                hr = pMoniker->BindToObject(0, 0, IID_IAMCameraControl, (void**)&pCamCtrl);
+                                if (FAILED(hr)) {
+                                    // The device does not support IAMCameraControl, so skip.
+                                    CameraControlCapable = false;
+                                }
+				
                                 string Parameter;
                                 long ParValue;
                                 size_t fr1;
                                 size_t fr2;
                                 bool FlagManual;
 
-								//string parser
+                                //string parser
                                 for (uint32_t i = idxArray[j] +2; i<idxArray[j +1]; i++) {
-                                        fr1 = settArray[i].find('=');
-                                        fr2 = settArray[i].find('[');
-										if ((fr1 != string::npos) && (fr2 != string::npos)) {
-                                            Parameter = settArray[i].substr(0, fr1);
-											try {
-												ParValue = stol(settArray[i].substr(fr1 +1, fr2 - fr1 -2)); //-2 is " ["	
-                                            } catch(invalid_argument& ia) {
-                                                throw string("Exception. Invalid argument. cam_sett.cfg, reading variable at [" + to_string(i) + ";" + to_string(fr1 +1) + "]");
-                                            } catch(out_of_range& oor) {
-                                                throw string("Exception. Out of range. cam_sett.cfg, reading variable at [" + to_string(i) + ";" + to_string(fr1 +1) + "]");
-                                            }
-											if (settArray[i].substr(fr2) == "[Manual]") { //get Auto/Manual flag
-												FlagManual = true;
-											} else {
-												FlagManual = false;
-											}
-											
-											//set parameters
-                                            if (VideoProcAmpCapable) {
-                                                if (Parameter == "VideoProcAmp_BacklightCompensation") {
-                                                    hr = pProcAmp->Set(VideoProcAmp_BacklightCompensation, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
-                                                } else if (Parameter == "VideoProcAmp_Brightness") {
-													hr = pProcAmp->Set(VideoProcAmp_Brightness, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
-                                                } else if (Parameter == "VideoProcAmp_ColorEnable") {
-													hr = pProcAmp->Set(VideoProcAmp_ColorEnable, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
-                                                } else if (Parameter == "VideoProcAmp_Contrast") {
-													hr = pProcAmp->Set(VideoProcAmp_Contrast, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
-                                                } else if (Parameter == "VideoProcAmp_Gain") {
-													hr = pProcAmp->Set(VideoProcAmp_Gain, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
-                                                } else if (Parameter == "VideoProcAmp_Gamma") {
-													hr = pProcAmp->Set(VideoProcAmp_Gamma, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
-                                                } else if (Parameter == "VideoProcAmp_Hue") {
-													hr = pProcAmp->Set(VideoProcAmp_Hue, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
-                                                } else if (Parameter == "VideoProcAmp_Saturation") {
-													hr = pProcAmp->Set(VideoProcAmp_Saturation, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
-                                                } else if (Parameter == "VideoProcAmp_Sharpness") {
-													hr = pProcAmp->Set(VideoProcAmp_Sharpness, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
-                                                } else if (Parameter == "VideoProcAmp_WhiteBalance") {
-													hr = pProcAmp->Set(VideoProcAmp_WhiteBalance, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
-                                                } else logMe(LOG_DBG, "VideoProcAmp string not found"); //no match found, so skip in silent
+                                    fr1 = settArray[i].find('=');
+                                    fr2 = settArray[i].find('[');
+                                    if ((fr1 != string::npos) && (fr2 != string::npos)) {
+                                        Parameter = settArray[i].substr(0, fr1);
+                                        try {
+                                            ParValue = stol(settArray[i].substr(fr1 +1, fr2 - fr1 -2)); //-2 is " ["	
+                                        } catch(invalid_argument& ia) {
+                                            throw string("Exception. Invalid argument. cam_sett.cfg, reading variable at [" + to_string(i) + ";" + to_string(fr1 +1) + "]");
+                                        } catch(out_of_range& oor) {
+                                            throw string("Exception. Out of range. cam_sett.cfg, reading variable at [" + to_string(i) + ";" + to_string(fr1 +1) + "]");
+                                        }
+                                        if (settArray[i].substr(fr2) == "[Manual]") { //get Auto/Manual flag
+                                            FlagManual = true;
+                                        } else {
+                                            FlagManual = false;
+                                        }
 
-												logMe(LOG_DBG, "HRESULT: " + to_string(hr));
-                                            } //if VideoProcAmpCapable
+                                        //set parameters
+                                        if (VideoProcAmpCapable) {
+                                            if (Parameter == "VideoProcAmp_BacklightCompensation") {
+                                                hr = pProcAmp->Set(VideoProcAmp_BacklightCompensation, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
+                                            } else if (Parameter == "VideoProcAmp_Brightness") {
+                                                hr = pProcAmp->Set(VideoProcAmp_Brightness, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
+                                            } else if (Parameter == "VideoProcAmp_ColorEnable") {
+                                                hr = pProcAmp->Set(VideoProcAmp_ColorEnable, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
+                                            } else if (Parameter == "VideoProcAmp_Contrast") {
+                                                hr = pProcAmp->Set(VideoProcAmp_Contrast, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
+                                            } else if (Parameter == "VideoProcAmp_Gain") {
+                                                hr = pProcAmp->Set(VideoProcAmp_Gain, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
+                                            } else if (Parameter == "VideoProcAmp_Gamma") {
+                                                hr = pProcAmp->Set(VideoProcAmp_Gamma, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
+                                            } else if (Parameter == "VideoProcAmp_Hue") {
+                                                hr = pProcAmp->Set(VideoProcAmp_Hue, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
+                                            } else if (Parameter == "VideoProcAmp_Saturation") {
+                                                hr = pProcAmp->Set(VideoProcAmp_Saturation, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
+                                            } else if (Parameter == "VideoProcAmp_Sharpness") {
+                                                hr = pProcAmp->Set(VideoProcAmp_Sharpness, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
+                                            } else if (Parameter == "VideoProcAmp_WhiteBalance") {
+                                                hr = pProcAmp->Set(VideoProcAmp_WhiteBalance, ParValue, FlagManual ? VideoProcAmp_Flags_Manual : VideoProcAmp_Flags_Auto);
+                                            } else logMe(LOG_DBG, "VideoProcAmp string not found"); //no match found, so skip in silent
 
-                                            if (CameraControlCapable) {
-                                                if (Parameter == "CameraControl_Exposure") {
-													hr = pCamCtrl->Set(CameraControl_Exposure, ParValue, FlagManual ? CameraControl_Flags_Manual : CameraControl_Flags_Auto);
-                                                } else if (Parameter == "CameraControl_Focus") {
-													hr = pCamCtrl->Set(CameraControl_Focus, ParValue, FlagManual ? CameraControl_Flags_Manual : CameraControl_Flags_Auto);
-                                                } else if (Parameter == "CameraControl_Iris") {
-													hr = pCamCtrl->Set(CameraControl_Iris, ParValue, FlagManual ? CameraControl_Flags_Manual : CameraControl_Flags_Auto);
-                                                } else if (Parameter == "CameraControl_Pan") {
-													hr = pCamCtrl->Set(CameraControl_Pan, ParValue, FlagManual ? CameraControl_Flags_Manual : CameraControl_Flags_Auto);
-                                                } else if (Parameter == "CameraControl_Roll") {
-													hr = pCamCtrl->Set(CameraControl_Roll, ParValue, FlagManual ? CameraControl_Flags_Manual : CameraControl_Flags_Auto);
-                                                } else if (Parameter == "CameraControl_Tilt") {
-													hr = pCamCtrl->Set(CameraControl_Tilt, ParValue, FlagManual ? CameraControl_Flags_Manual : CameraControl_Flags_Auto);
-                                                } else if (Parameter == "CameraControl_Zoom") {
-													hr = pCamCtrl->Set(CameraControl_Zoom, ParValue, FlagManual ? CameraControl_Flags_Manual : CameraControl_Flags_Auto);
-                                                } else logMe(LOG_DBG, "CameraControl string not found"); //no match found, so skip in silent
+                                            logMe(LOG_DBG, "HRESULT: " + to_string(hr));
+                                        } //if VideoProcAmpCapable
 
-												logMe(LOG_DBG, "HRESULT: " + to_string(hr));
-                                            } //if CameraControlCapable
-										} //if actual parameter found (fr1,fr2)
-								} //for
+                                        if (CameraControlCapable) {
+                                            if (Parameter == "CameraControl_Exposure") {
+                                                hr = pCamCtrl->Set(CameraControl_Exposure, ParValue, FlagManual ? CameraControl_Flags_Manual : CameraControl_Flags_Auto);
+                                            } else if (Parameter == "CameraControl_Focus") {
+                                                hr = pCamCtrl->Set(CameraControl_Focus, ParValue, FlagManual ? CameraControl_Flags_Manual : CameraControl_Flags_Auto);
+                                            } else if (Parameter == "CameraControl_Iris") {
+                                                hr = pCamCtrl->Set(CameraControl_Iris, ParValue, FlagManual ? CameraControl_Flags_Manual : CameraControl_Flags_Auto);
+                                            } else if (Parameter == "CameraControl_Pan") {
+                                                hr = pCamCtrl->Set(CameraControl_Pan, ParValue, FlagManual ? CameraControl_Flags_Manual : CameraControl_Flags_Auto);
+                                            } else if (Parameter == "CameraControl_Roll") {
+                                                hr = pCamCtrl->Set(CameraControl_Roll, ParValue, FlagManual ? CameraControl_Flags_Manual : CameraControl_Flags_Auto);
+                                            } else if (Parameter == "CameraControl_Tilt") {
+                                                hr = pCamCtrl->Set(CameraControl_Tilt, ParValue, FlagManual ? CameraControl_Flags_Manual : CameraControl_Flags_Auto);
+                                            } else if (Parameter == "CameraControl_Zoom") {
+                                                hr = pCamCtrl->Set(CameraControl_Zoom, ParValue, FlagManual ? CameraControl_Flags_Manual : CameraControl_Flags_Auto);
+                                            } else logMe(LOG_DBG, "CameraControl string not found"); //no match found, so skip in silent
+
+                                            logMe(LOG_DBG, "HRESULT: " + to_string(hr));
+                                        } //if CameraControlCapable
+                                    } //if actual parameter found (fr1,fr2)
+                                } //for
                                 if (VideoProcAmpCapable) pProcAmp->Release();
                                 if (CameraControlCapable) pCamCtrl->Release();
                                 break; //break while idxArray, try next device (moniker)
-							} //if FriendlyName match	
-						}
-					} //if DevicePath match
+                            } //if FriendlyName match	
+                        }
+                    } //if DevicePath match
 						
-					// iterate through each second element of idxArray (begin of the device description)
-					j += 2;	
-					
-				} //while idxArray
+                    // iterate through each second element of idxArray (begin of the device description)
+                    j += 2;
+
+                } //while idxArray
             } //if device path read succeeded
             pPropBag->Release();
             pMoniker->Release();
@@ -297,8 +297,8 @@ void GetDeviceSettings(IEnumMoniker *pEnum) {
             // Get device path
             hr = pPropBag->Read(L"DevicePath", &var, 0);
             if (SUCCEEDED(hr)) {
-				// The device path is not intended for display.
-				settArray.push_back(ConvertBSTRToMBS(var.bstrVal));
+                // The device path is not intended for display.
+                settArray.push_back(ConvertBSTRToMBS(var.bstrVal));
                 VariantClear(&var);
             }
 
@@ -462,9 +462,9 @@ void GetDeviceSettings(IEnumMoniker *pEnum) {
                 pCamCtrl->Release();
             } // if CameraControlCapable
 
-			settArray.push_back("---end of the device #" + to_string(i));
-			settArray.push_back("");
-			// add indexes of the device descriptions end
+            settArray.push_back("---end of the device #" + to_string(i));
+            settArray.push_back("");
+            // add indexes of the device descriptions end
             idxArray.push_back(settArray.size());
 
             pPropBag->Release();
@@ -514,26 +514,26 @@ void MyDevicesSettings(int gsd) {
 void CamSetAll::loadSett(string cfgfilename) {
     logMe(LOG_DBG,"reading... " + cfgfilename);
     //read from .cfg file to RAM
-	string line;
-	ifstream cfgfile;
+    string line;
+    ifstream cfgfile;
     cfgfile.open (cfgfilename, ios::binary); //read .cfg file
-	if (cfgfile.is_open()) {
-		while (getline(cfgfile,line)) {
+    if (cfgfile.is_open()) {
+        while (getline(cfgfile,line)) {
             //ignore string with '/' at start of the string (comments)
             //short logic used
             if ((line.length() != 0) && (line[0] != '/')) {
                 settArray.push_back(line);
                 // Fill idxArray with device description boundaries
-				if (line.find("Device #") == 0) {
-					idxArray.push_back(settArray.size());
-				} else if (line.find("---end of the device #") == 0)
-					idxArray.push_back(settArray.size());
-			}
-		}
-	} else {
+                if (line.find("Device #") == 0) {
+                    idxArray.push_back(settArray.size());
+                } else if (line.find("---end of the device #") == 0)
+                    idxArray.push_back(settArray.size());
+            }
+        } //while
+    } else {
         throw string("Unable to open file: " + cfgfilename);
-	}
-	cfgfile.close();
+    }
+    cfgfile.close();
     //ignore small descriptions
     if (settArray.size() > 1) {
         MyDevicesSettings(SET_SETT);
@@ -543,20 +543,20 @@ void CamSetAll::loadSett(string cfgfilename) {
 void CamSetAll::saveSett(string cfgfilename){
     //read from device and save to .cfg file
     MyDevicesSettings(GET_SETT); //get from device
-	logMe(LOG_DBG, "Get Divice settings COMPLETE");
-	MyDevicesSettings(DIS_SETT); //display settings
-	logMe(LOG_DBG, "Display Divice settings COMPLETE");
+    logMe(LOG_DBG, "Get Divice settings COMPLETE");
+    MyDevicesSettings(DIS_SETT); //display settings
+    logMe(LOG_DBG, "Display Divice settings COMPLETE");
 
-	ofstream cfgfile;
+    ofstream cfgfile;
     cfgfile.open (cfgfilename, ios::trunc | ios::binary); //overwrite .cfg file
-	if (cfgfile.is_open()) {
+    if (cfgfile.is_open()) {
         cfgfile << "/ WebCameraConfig settings file" << "\n"; //write info line (comment)
         for (uint32_t i = 0; i < settArray.size(); i++)
-			cfgfile << settArray[i] + "\n"; //write line
-	} else {
+            cfgfile << settArray[i] + "\n"; //write line
+    } else {
         logMe(LOG_ERR, "Unable to open file for writing: " + cfgfilename);
-	}
-	cfgfile.close();
+    }
+    cfgfile.close();
 }
 
 void CamSetAll::displayFoundDevices() {
