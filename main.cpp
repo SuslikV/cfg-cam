@@ -3,8 +3,8 @@
 #include "loginfo.h"
 #include "camset.h"
 
-//int verbLevel = VERB_NORMAL; //display messages
-int verbLevel = VERB_FULL; //display debug messages
+int verbLevel = VERB_NORMAL; //display messages
+//int verbLevel = VERB_FULL; //display debug messages
 bool ignoreFriendlyName = false;
 
 void helpme() {
