@@ -15,10 +15,11 @@ void helpme() {
     logMe(LOG_INFO, "Usage: WebCameraConfig.exe [options]");
     logMe(LOG_INFO, "");
     logMe(LOG_INFO, "Options:");
-    logMe(LOG_INFO, "--readdev       : Read and print all devices short info.");
-    logMe(LOG_INFO, "--savedev       : Save devices current settings into .cfg file.");
-    logMe(LOG_INFO, "--ignorefn      : Ignore FriendlyName when looking for diveces.");
-    logMe(LOG_INFO, "--help          : Display this help info.");
+    logMe(LOG_INFO, "--readdev          : Read and print all devices short info.");
+    logMe(LOG_INFO, "--savedev          : Save devices current settings into .cfg file.");
+    logMe(LOG_INFO, "--profile [string] : Uses string as filename to save/load settings.");
+    logMe(LOG_INFO, "--ignorefn         : Ignore FriendlyName when looking for diveces.");
+    logMe(LOG_INFO, "--help             : Display this help info.");
     logMe(LOG_INFO, "");
     logMe(LOG_INFO, "Without [options], it reads existing cam_sett.cfg file and applies settings");
     logMe(LOG_INFO, "to all available devices.");
@@ -34,6 +35,7 @@ int main(int argc, char *argv[])
     //argv[1] = (char *)"--savedev";
     //argv[1] = (char *)"--ignorefn";
 
+    string ProfStr;
     bool readVideoDevices, saveVideoDevices = false;
     int i = 1;
     for(; i < argc; i++) {
@@ -42,6 +44,8 @@ int main(int argc, char *argv[])
             readVideoDevices = true;
         } else if (arg == "--savedev") {
             saveVideoDevices = true;
+        } else if (arg == "--profile") {
+            if (++i < argc) ProfStr = argv[i];
         } else if (arg == "--ignorefn") {
             ignoreFriendlyName = true;
         } else if (arg == "--help") {
@@ -57,6 +61,9 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    if (ProfStr == "")
+        ProfStr = "cam_sett"; //default file name
+
     CamSetAll camupd;
     try {
 
@@ -66,12 +73,12 @@ int main(int argc, char *argv[])
         }
 
         if (saveVideoDevices) {
-            camupd.saveSett("cam_sett.cfg");
+            camupd.saveSett(ProfStr + ".cfg");
             return 0; //all OK
         }
 
         //default behavior is to load/apply settings from the .cfg file
-        camupd.loadSett("cam_sett.cfg");
+        camupd.loadSett(ProfStr + ".cfg");
 
     } catch(string e) {
         logMe(LOG_ERR, e);
