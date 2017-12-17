@@ -113,7 +113,7 @@ void DisplayDeviceSettings() {
     for (uint32_t i = 0; i < settArray.size(); i++) {
         logM(LOG_DBG, to_string(i) + " ");
         logMe(LOG_INFO, settArray[i]);
-	}
+    }
 }
 
 //this function includes small string parser to get parameter, its value and flag.
@@ -136,7 +136,7 @@ void SetDeviceSettings(IEnumMoniker *pEnum) {
             VARIANT var;
             VariantInit(&var);
             uint32_t j = 0;
-		
+
             // Get device path
             hr = pPropBag->Read(L"DevicePath", &var, 0);
             if (SUCCEEDED(hr)) {
@@ -178,7 +178,7 @@ void SetDeviceSettings(IEnumMoniker *pEnum) {
                                     // The device does not support IAMCameraControl, so skip.
                                     CameraControlCapable = false;
                                 }
-				
+
                                 string Parameter;
                                 long ParValue;
                                 size_t fr1;
@@ -192,11 +192,11 @@ void SetDeviceSettings(IEnumMoniker *pEnum) {
                                     if ((fr1 != string::npos) && (fr2 != string::npos)) {
                                         Parameter = settArray[i].substr(0, fr1);
                                         try {
-                                            ParValue = stol(settArray[i].substr(fr1 +1, fr2 - fr1 -2)); //-2 is " ["	
+                                            ParValue = stol(settArray[i].substr(fr1 +1, fr2 - fr1 -2)); //-2 is " ["
                                         } catch(invalid_argument& ia) {
-                                            throw string("Exception. Invalid argument. cam_sett.cfg, reading variable at [" + to_string(i) + ";" + to_string(fr1 +1) + "]");
+                                            throw string("Exception. Invalid argument in cfg. Reading RAM variable at [" + to_string(i) + ";" + to_string(fr1 +1) + "]");
                                         } catch(out_of_range& oor) {
-                                            throw string("Exception. Out of range. cam_sett.cfg, reading variable at [" + to_string(i) + ";" + to_string(fr1 +1) + "]");
+                                            throw string("Exception. Out of range in cfg. Reading RAM variable at [" + to_string(i) + ";" + to_string(fr1 +1) + "]");
                                         }
                                         if (settArray[i].substr(fr2) == "[Manual]") { //get Auto/Manual flag
                                             FlagManual = true;
@@ -255,10 +255,10 @@ void SetDeviceSettings(IEnumMoniker *pEnum) {
                                 if (VideoProcAmpCapable) pProcAmp->Release();
                                 if (CameraControlCapable) pCamCtrl->Release();
                                 break; //break while idxArray, try next device (moniker)
-                            } //if FriendlyName match	
+                            } //if FriendlyName match
                         }
                     } //if DevicePath match
-						
+
                     // iterate through each second element of idxArray (begin of the device description)
                     j += 2;
 
@@ -305,7 +305,7 @@ void GetDeviceSettings(IEnumMoniker *pEnum) {
             // Get friendly name.
             hr = pPropBag->Read(L"FriendlyName", &var, 0);
             if (SUCCEEDED(hr)) {
-				settArray.push_back(ConvertBSTRToMBS(var.bstrVal));
+                settArray.push_back(ConvertBSTRToMBS(var.bstrVal));
                 VariantClear(&var);
             }
 
@@ -492,7 +492,7 @@ void MyDevicesSettings(int gsd) {
                 SetDeviceSettings(pEnum);
                 break;
             case DIS_SETT:
-			    DisplayDeviceSettings();
+                DisplayDeviceSettings();
                 break;
             case DIS_INFO:
                 DisplayDeviceInformation(pEnum);
