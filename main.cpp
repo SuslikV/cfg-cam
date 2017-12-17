@@ -9,7 +9,7 @@ bool ignoreFriendlyName = false;
 
 void helpme() {
     logMe(LOG_INFO, "");
-    logMe(LOG_INFO, "CamCfg.Date.2017.version.1.0alpha");
+    logMe(LOG_INFO, "CamCfg.Date.2017.version.1.0");
     logMe(LOG_INFO, "To save and apply DirectShow webcam settings");
     logMe(LOG_INFO, "");
     logMe(LOG_INFO, "Usage: WebCameraConfig.exe [options]");
