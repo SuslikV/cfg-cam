@@ -18,7 +18,7 @@ void helpme() {
     logMe(LOG_INFO, "--readdev          : Read and print all devices short info.");
     logMe(LOG_INFO, "--savedev          : Save devices current settings into .cfg file.");
     logMe(LOG_INFO, "--profile [string] : Uses string as filename to save/load settings.");
-    logMe(LOG_INFO, "--ignorefn         : Ignore FriendlyName when looking for diveces.");
+    logMe(LOG_INFO, "--ignorefn         : Ignore FriendlyName when looking for devices.");
     logMe(LOG_INFO, "--help             : Display this help info.");
     logMe(LOG_INFO, "");
     logMe(LOG_INFO, "Without [options], it reads existing cam_sett.cfg file and applies settings");
